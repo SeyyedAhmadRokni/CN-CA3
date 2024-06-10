@@ -32,8 +32,10 @@ void Cluster::connectHost(Router* rt, int rp, Host* ht){
 void Cluster::connectTwoRouters(Router* r1, int p1, Router* r2, int p2){
         QObject::connect(r1->ports[p1], &Buffer::sendPacketSignal, r2->ports[p2], &Buffer::recievePacket);
         QObject::connect(r2->ports[p2], &Buffer::sendPacketSignal, r1->ports[p1], &Buffer::recievePacket);
-        r1->setNeighbor(p1, r2->getIp());
-        r2->setNeighbor(p2, r1->getIp());
+        if (r1->getAS() == r2->getAS()){
+            r1->setNeighbor(p1, r2->getIp());
+            r2->setNeighbor(p2, r1->getIp());
+        }
 }
 
 void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr){
@@ -76,11 +78,17 @@ void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr){
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip2);
+    QThread* thread1 = new QThread();
+    h1->moveToThread(thread1);
+    threads.push_back(thread1);
 
     Host* h2 = new Host (host_ip1[1], 0.1, 0.1, clusterNumber);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     h2->setPartners(host_ip2);
+    QThread* thread2 = new QThread();
+    h2->moveToThread(thread2);
+    threads.push_back(thread2);
 
     connectHost(routers[3], 4, h1);
     connectHost(routers[4], 4, h2);
@@ -130,11 +138,17 @@ void Cluster::createMeshTopology(clockGenerator* clk, CommandReader* cmdr){
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip1);
+    QThread* thread1 = new QThread();
+    h1->moveToThread(thread1);
+    threads.push_back(thread1);
 
     Host* h2 = new Host (host_ip2[1], 0.1, 0.1, clusterNumber);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     h2->setPartners(host_ip1);
+    QThread* thread2 = new QThread();
+    h2->moveToThread(thread2);
+    threads.push_back(thread2);
 
     connectHost(routers[8], 4, h1);
     connectHost(routers[12], 4, h2);
@@ -158,10 +172,10 @@ void Cluster::addStarToMesh(Cluster* starCluster){
 }
 
 void Cluster::startRouting(){
-    QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
-    // for (int i = 0; i < routers.size(); ++i) {
-    //     QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
-    // }
+    // QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
+    for (int i = 0; i < routers.size(); ++i) {
+        QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
+    }
     // QThread::sleep(1);
     // for (int i =0; i < 8; i++){
     //     routers[i]->printRoutingTable();
