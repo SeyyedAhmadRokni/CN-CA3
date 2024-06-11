@@ -8,10 +8,6 @@ Packet::Packet(std::string _dest_addr, std::string _source_addr,std::string _Typ
     ipv = _ipv;
 }
 
-
-
-
-
 int Packet::getInitialASNumber(){
     if (ASNumbers.empty()){
         std::cout << "ooooooooooooooooooooooooooh no set AS for you packets"<< std::endl;
@@ -70,4 +66,29 @@ void Packet::increaseBufferWaitingCycles(){
 
 void Packet::setPacketDestination(std::string _dest){
     dest_addr = _dest;
+}
+
+PacketType Packet::getPacketType(Packet* packet){
+    if (packet->getType().compare(RIP_PACKET) == 0){
+        return RIP;
+    }
+    else if (packet->getType().compare(OSPF_PACKET) == 0){
+        return OSPF;
+    }
+    else if (packet->getType().compare(EBPG_PACKET) == 0){
+        return EBGP;
+    }
+    else if(packet->getType().compare(IBGP_PACKET) == 0){
+        return IBGP;
+    }
+    else if(packet->getType().compare(REGULAR_PACKET) == 0){
+        return REGULAR;
+    }
+    else if(packet->getType().compare(REQUEST_IP_PACKET) == 0){
+        return REQUEST_IP;
+    }
+    else{
+        return OTHERS;
+    }
+
 }

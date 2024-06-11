@@ -19,14 +19,14 @@ public:
     void addStarToMesh(Cluster *starCluster);
 private:
     int clusterNumber;
-    RoutingProtocol routingProtocol;
     std::vector<Router*> routers;
     std::vector<QThread*> threads;
     void connectTwoRouters(Router* r1, int p1, Router* r2, int p2);
     void connectHost(Router* rt, int rp, Host* ht);
-    std::vector<std::string> host_ip1 = {"192.168.101", "192.168.102"};
-    std::vector<std::string> host_ip2 = {"192.168.201", "192.168.202"};
     // void connectChangeRoutingProtocolSignal();
+    std::vector<std::string> host_ip1 = {"192.168.1.4.1", "192.168.1.5.1"};
+    std::vector<std::string> host_ip2 = {"192.168.1.9.1", "192.168.1.13.1"};
+
 
 // signals:
 //     void changeRoutingProtocol(RoutingProtocol _rp);

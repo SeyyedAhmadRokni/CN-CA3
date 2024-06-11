@@ -2,6 +2,7 @@
 #include "node.h"
 #include "rippacket.h"
 #include "ebgppacket.h"
+#include "host.h"
 
 #include <iostream>
 #include <bits/shared_ptr.h>
@@ -18,7 +19,6 @@ Router::Router(int _id, std::string _ip, int _AS, QObject *parent)
     AS = _AS;
     ip = _ip;
     id = _id;
-    routingProtocl = RIP;
     distanceVector[ip] = 0;
     shoretestPathPorts[ip] = 0;
     for(int i =0; i < NUMBER_OF_PORTS; i++){
@@ -27,9 +27,33 @@ Router::Router(int _id, std::string _ip, int _AS, QObject *parent)
         neighbors[i] = "";
     }
     routingTable = new RoutingTable(ip);
-
+    hostIps["1"] = false;
+    // hostIps["2"] = false;
 }
 
+void Router::setRoutingProtocol(PacketType pt){
+    routingProtocl = pt;
+}
+void Router::processRequestIpPacket(std::shared_ptr<Packet> packet, int inPort){
+    if (neighbors[inPort].compare("") != 0){
+        return;
+    }
+    std::shared_ptr<Packet> response = std::make_shared<Packet>(packet->getSource(), ip, REQUEST_IP_PACKET);
+    for (std::string key : hostIps.keys()) {
+        if (!hostIps[key]){
+            hostIps[key] = true;
+            std::string body = ip;
+            body += "." + key;
+            response->setBody(body);
+            neighbors[inPort] = body;
+            ports[inPort]->addToOutBuffer(response);
+            if (routingProtocl == OSPF){
+                StartOSPFProtocol();
+            }
+            return;
+        }
+    }
+}
 
 
 void Router::setAsBorder(){
@@ -51,7 +75,7 @@ void Router::processPacketsOnSignal(){
     std::shared_ptr<Packet> packet = ports[servingPortBuffer]->getFirstPacket();
     if (packet.get() != nullptr){
         if (packet->getInitialASNumber() == AS){
-        processPackets(packet, servingPortBuffer);
+            processPackets(packet, servingPortBuffer);
         }
         if (packet->getInitialASNumber() != AS && isBorder){
             processBGP(packet,servingPortBuffer);
@@ -89,24 +113,27 @@ void Router::sendToOtherAS(std::shared_ptr<IBPGPacket> packet){
 }
 
 void Router::processPackets(std::shared_ptr<Packet> packet,int inputPort){
-    // std::cout << "router " << id << " got packet " << packet.get()->getBody() << " on port " << inputPort << std::endl;
-    if (packet->getType().compare("RIP") == 0){
+    switch (Packet::getPacketType(packet.get())) {
+    case RIP:{
         auto rip = std::dynamic_pointer_cast<RipPacket>(packet);
         processRipPacket(rip, inputPort);
+        break;
     }
-    else if (packet->getType().compare("OSPF") == 0){
+    case OSPF:{
         auto ospf = std::dynamic_pointer_cast<OspfPacket>(packet);
         processOspfPacket(ospf, inputPort);
+        break;
     }
-    else if (packet->getType().compare("EBGP") == 0){
-
+    case REQUEST_IP:{
+        processRequestIpPacket(packet, inputPort);
+        break;
     }
-    else if(packet->getType().compare("IBGP") == 0 && isBorder && packet->getInitialASNumber() != AS){
-        // auto ibgp = std::dynamic_pointer_cast<IBPGPacket>(packet);
-        // sendToOtherAS(ibgp);
-    }
-    else{
+    // case EBGP:
+    //     break;
+    default:{
         forwardPacket(packet,inputPort);
+        break;
+    }
     }
 }
 
@@ -170,7 +197,7 @@ void Router::forwardPacket(std::shared_ptr<Packet> packet,int inputPort){
 
 }
 
-void Router::broadCast(std::shared_ptr<Packet> packet, RoutingProtocol rp){
+void Router::broadCast(std::shared_ptr<Packet> packet, PacketType rp){
     if (rp == OSPF){
         auto ospf = std::dynamic_pointer_cast<OspfPacket>(packet);
         for(int i =0; i < NUMBER_OF_PORTS; i++){
@@ -187,12 +214,12 @@ void Router::broadCast(std::shared_ptr<Packet> packet, RoutingProtocol rp){
 void Router::StartOSPFProtocol(){
     Link* links = new Link();
     for (auto dest : neighbors.values()){
-        if (dest.compare("") != 0)
+        if (dest.compare("") != 0 && dest.compare(INVALID_IP) != 0)
             (*links)[dest] = 1;
     }
     std::shared_ptr<OspfPacket> packet = std::make_shared<OspfPacket>(ip, links);
     packet->addASNumber(AS);
-    broadCast(packet);
+    broadCast(packet, OSPF);
 }
 
 
@@ -294,10 +321,6 @@ void Router::commandSlot(std::string command){
 }
 
 
-
-// void Router::changeRoutingProtocol(RoutingProtocol _rp){
-//     routingProtocl = _rp;
-// }
 
 void Router::setNeighbor(int port, std::string neighbor){
     neighbors[port] = neighbor;

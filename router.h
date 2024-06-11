@@ -15,12 +15,6 @@
 
 const int NUMBER_OF_PORTS = 5;
 
-typedef enum RoutingProtocol{
-    RIP,
-    OSPF,
-} RoutingProtocol;
-
-
 class Router : public Node
 {
     Q_OBJECT
@@ -33,7 +27,8 @@ public:
 
     void processPackets(std::shared_ptr<Packet> packet, int inputPort);
     void processOspfPacket(std::shared_ptr<OspfPacket> packet, int inPort);
-    void broadCast(std::shared_ptr<Packet> packet, RoutingProtocol rp = RIP);
+    void processRequestIpPacket(std::shared_ptr<Packet> packet, int inPort);
+    void broadCast(std::shared_ptr<Packet> packet, PacketType rp = RIP);
     void StartRIPProtocol();
     void StartOSPFProtocol();
     void processRipPacket(std::shared_ptr<RipPacket> packet, int inPort);
@@ -51,6 +46,7 @@ public:
 
     std::string findShortestIBGP();
     void sendToOtherAS(std::shared_ptr<IBPGPacket> packet);
+    void setRoutingProtocol(PacketType pt);
 public slots:
     void commandSlot(std::string command);
     void processPacketsOnSignal();
@@ -65,10 +61,11 @@ private:
     QHash<std::string, int> shoretestPathPorts;
     LSDB lsdb;
     RoutingTable* routingTable;
-    RoutingProtocol routingProtocl = RIP;
+    PacketType routingProtocl = RIP;
     QHash<int, std::string> neighbors;
     int servingPortBuffer = 0;
     std::vector<std::string> ibgpIps;
+    QHash<std::string, bool> hostIps;
 };
 
 #endif // ROUTER_H
