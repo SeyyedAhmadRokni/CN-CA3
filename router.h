@@ -19,12 +19,10 @@ class Router : public Node
 {
     Q_OBJECT
 public:
-    explicit Router(int _id, std::string _ip, int _AS, QObject *parent = nullptr);
+    explicit Router(int _id, std::string _ip, int _AS, std::string _mask,QObject *parent = nullptr);
     void createPacket(int outPort);
     void send(std::shared_ptr<std::string> data);
-
     std::vector<Buffer*> ports;
-
     void processPackets(std::shared_ptr<Packet> packet, int inputPort);
     void processOspfPacket(std::shared_ptr<OspfPacket> packet, int inPort);
     void processRequestIpPacket(std::shared_ptr<Packet> packet, int inPort);
@@ -45,7 +43,7 @@ public:
     int getAS();
 
     std::string findShortestIBGP();
-    void sendToOtherAS(std::shared_ptr<IBPGPacket> packet);
+    void sendToOtherAS(std::shared_ptr<Packet> packet);
     void setRoutingProtocol(PacketType pt);
 public slots:
     void commandSlot(std::string command);
@@ -57,6 +55,7 @@ private:
     int id;
     int AS;
     std::string ip;
+    std::string mask;
     QHash<std::string, int> distanceVector;
     QHash<std::string, int> shoretestPathPorts;
     LSDB lsdb;

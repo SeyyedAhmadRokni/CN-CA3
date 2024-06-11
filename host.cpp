@@ -16,6 +16,7 @@ Host::Host(double pareto_alpha, double pareto_xm, int _as, QObject *parent)
     srand(time(NULL));
     generator = new std::default_random_engine(time(NULL));
     AS = _as;
+    mask = _mask;
 }
 
 void Host::setPartners(const std::vector<std::string>& _partners){
@@ -32,7 +33,7 @@ void Host::createAndSendPacket(){
     std::shared_ptr<Packet> packet = std::make_shared<Packet>(choosed_partner, ip, REGULAR_PACKET);
     packet.get()->setBody("Besme Allah Alrahman Alrahim");
     packet.get()->addASNumber(AS);
-    std::cout << "Packet sent"<<std::endl;
+    // std::cout << "Packet sent"<<std::endl;
     port->addToOutBuffer(packet);
 }
 
@@ -56,6 +57,7 @@ void Host::parteoSendPacket(){
     double random = rand();
     if (random < pareto && sent == 0){
         createAndSendPacket();
+        // sent = 1;
     }
 }
 
@@ -63,9 +65,12 @@ void Host::handlePackets(){
     std::shared_ptr<Packet> packet = port->getFirstPacket();
     if (packet.get() != nullptr){
         switch (Packet::getPacketType(packet.get())) {
-        case REGULAR:
+        case REGULAR:{
             std::cout <<"WOW " << packet.get()->getSource() << std::endl;
+            packet->addPath(ip);
+            emit sendPacket(packet);
             break;
+        }
         case REQUEST_IP:
             if (ip.compare(INVALID_IP) == 0){
                 ip = packet.get()->getBody();

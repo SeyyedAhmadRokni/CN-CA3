@@ -23,17 +23,20 @@ public:
 private:
     double alpha, xm;
     std::string ip = INVALID_IP;
+    std::string mask;
     std::default_random_engine* generator;
     std::vector<std::string> partners;
     void setIp(std::shared_ptr<Packet> packet);
     int AS;
     std::string routerIp;
 signals:
+    void sendPacket(std::shared_ptr<Packet> _packet);
 
 
 public slots:
     void parteoSendPacket();
     void handlePackets();
+
 };
 
 #endif // HOST_H
