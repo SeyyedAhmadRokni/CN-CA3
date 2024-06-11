@@ -42,7 +42,7 @@ void Buffer::increaseDeliveryCycles(){
 void Buffer::incWaitingCycles(){
     for (int i = 0; i < inBuffer.size(); ++i) {
         if (inBuffer[i].get() != nullptr){
-            inBuffer[i].get()->increaseBufferWaitingCycles();
+            inBuffer[i]->increaseBufferWaitingCycles();
         }
     }
 }

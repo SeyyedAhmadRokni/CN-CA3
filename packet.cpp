@@ -81,6 +81,9 @@ void Packet::increaseDeliveryCycles(){
 }
 
 void Packet::increaseBufferWaitingCycles(){
+    if (this == nullptr){
+        return;
+    }
     bufferWaitingCycles++;
 }
 
