@@ -1,5 +1,6 @@
 #include "packet.h"
 #include <iostream>
+#include <bits/shared_ptr.h>
 
 Packet::Packet(std::string _dest_addr, std::string _source_addr,std::string _mask,std::string _Type = "packet", IPVersion _ipv) {
     dest_addr = _dest_addr;
@@ -67,7 +68,7 @@ bool Packet::changeToIPV6(){
     if (ipv == IPV_6){
         return false;
     }
-    ipv6Packet = this;
+    encapsulated = this;
     encapsulated = true;
     return true;
 }
@@ -99,3 +100,18 @@ int Packet::getDeliveryCycles(){
 std::vector<std::string> Packet::getPath(){
     return path;
 }
+
+
+std::shared_ptr<Packet> Packet::getEncapsulatedPacket(){
+    return encapsulatedPacket;
+}
+
+bool Packet::isEncapsulated(){
+    return encapsulated;
+}
+
+void Packet::seEncapsulatedPacket(std::shared_ptr<Packet> _packet){
+    encapsulatedPacket = _packet;
+    encapsulated = true;
+}
+

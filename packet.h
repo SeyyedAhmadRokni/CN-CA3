@@ -5,6 +5,8 @@
 #include<string>
 #include <vector>
 
+#include <bits/shared_ptr.h>
+
 typedef enum IPVersion{
     IPV_4,
     IPV_6
@@ -29,11 +31,15 @@ public:
     std::string getDest();
     IPVersion getIpVersion();
 
+
     virtual ~Packet(){}
     void setPacketDestination(std::string _dest);
     void setFinalDest(std::string dest);
     std::string getFinalDest();
     void setType(std::string _type);
+    std::shared_ptr<Packet> getEncapsulatedPacket();
+    bool isEncapsulated();
+    void seEncapsulatedPacket(std::shared_ptr<Packet> _packet);
 protected:
     std::string source_addr;
     std::vector<int> ASNumbers;
@@ -47,7 +53,7 @@ protected:
     int deliveryCycles = 0;
     std::vector<std::string> route;
     IPVersion ipv;
-    Packet* ipv6Packet = nullptr;
+    std::shared_ptr<Packet> encapsulatedPacket = nullptr;
     bool encapsulated = false;
 
 };

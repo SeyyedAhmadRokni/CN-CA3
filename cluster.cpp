@@ -165,10 +165,10 @@ void Cluster::addStarToMesh(Cluster* starCluster){
 }
 
 void Cluster::startRouting(){
-    // QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
-    for (int i = 0; i < routers.size(); ++i) {
-        QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
-    }
+    QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
+    // for (int i = 0; i < routers.size(); ++i) {
+    //     QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
+    // }
     // QThread::sleep(1);
     // for (int i =0; i < 8; i++){
     //     routers[i]->printRoutingTable();
