@@ -15,6 +15,7 @@ Cluster::Cluster(int _clusterNumber,QObject *parent)
 void Cluster::connectHost(Router* rt, int rp, Host* ht){
     QObject::connect(rt->ports[rp], &Buffer::sendPacketSignal, ht->port, &Buffer::recievePacket);
     QObject::connect(ht->port, &Buffer::sendPacketSignal, rt->ports[rp], &Buffer::recievePacket);
+    rt->setNeighbor(rp, ht->getIp());
 }
 
 void Cluster::connectTwoRouters(Router* r1, int p1, Router* r2, int p2){
@@ -62,7 +63,7 @@ void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     }
 
 
-    Host* h1 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
+    Host* h1 = new Host (host_ip1[0], 0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip2);
@@ -71,7 +72,7 @@ void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     h1->moveToThread(thread1);
     threads.push_back(thread1);
 
-    Host* h2 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
+    Host* h2 = new Host (host_ip1[1], 0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     h2->setPartners(host_ip2);
@@ -124,7 +125,7 @@ void Cluster::createMeshTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     for (int i =0; i < routers.size(); i++){
         routers[i]->setibgpIps({"192.168.1.16","192.168.1.20","192.168.1.24"});
     }
-    Host* h1 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
+    Host* h1 = new Host (host_ip2[0], 0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip1);
@@ -133,7 +134,7 @@ void Cluster::createMeshTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     h1->moveToThread(thread1);
     threads.push_back(thread1);
 
-    Host* h2 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
+    Host* h2 = new Host (host_ip2[1], 0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     QObject::connect(h2,&Host::sendPacket,packetSaver, &PacketSaver::savePackets);

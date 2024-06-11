@@ -12,6 +12,7 @@ class Host : public QObject
     Q_OBJECT
 public:
     explicit Host(double parteo_alpha, double parteo_mx, int _as, std::string _mask, QObject *parent = nullptr);
+    explicit Host(std::string _ip, double parteo_alpha, double parteo_mx, int _as, std::string _mask, QObject *parent = nullptr);
     void setPartners(const std::vector<std::string>& _partners);
     void createAndSendPacket();
     double paretoDistribution();

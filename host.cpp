@@ -19,6 +19,19 @@ Host::Host(double pareto_alpha, double pareto_xm, int _as, std::string _mask, QO
     mask = _mask;
 }
 
+Host::Host(std::string _ip, double pareto_alpha, double pareto_xm, int _as, std::string _mask, QObject *parent)
+    : QObject{parent}{
+
+    alpha = pareto_alpha;
+    xm = pareto_xm;
+    port = new Buffer(0);
+    srand(time(NULL));
+    generator = new std::default_random_engine(time(NULL));
+    AS = _as;
+    mask = _mask;
+    ip = _ip;
+}
+
 void Host::setPartners(const std::vector<std::string>& _partners){
     for (std::string p: _partners){
         partners.push_back(p);
