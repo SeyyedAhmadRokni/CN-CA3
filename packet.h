@@ -5,6 +5,8 @@
 #include<string>
 #include <vector>
 
+#include <bits/shared_ptr.h>
+
 const std::string REQUEST_IP_PACKET = "REQUEST_IP";
 const std::string REGULAR_PACKET = "REGULAR";
 const std::string RIP_PACKET = "RIP";
@@ -52,6 +54,9 @@ public:
     void setType(std::string _type);
     static PacketType getPacketType(Packet* packet);
 
+    std::shared_ptr<Packet> getEncapsulatedPacket();
+    bool isEncapsulated();
+    void seEncapsulatedPacket(std::shared_ptr<Packet> _packet);
 protected:
     std::string source_addr;
     std::vector<int> ASNumbers;
@@ -65,7 +70,7 @@ protected:
     int deliveryCycles = 0;
     std::vector<std::string> route;
     IPVersion ipv;
-    Packet* ipv6Packet = nullptr;
+    std::shared_ptr<Packet> encapsulatedPacket = nullptr;
     bool encapsulated = false;
 
 
