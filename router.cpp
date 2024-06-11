@@ -308,6 +308,9 @@ std::string Router::getIp(){
 }
 
 
+int Router::getAS(){
+    return AS;
+}
 
 
 

@@ -45,6 +45,7 @@ public:
     bool DoesBGPTableContain(std::string prefix);
     void forwardPacket(std::shared_ptr<Packet> packet, int inputPort);
     void setibgpIps(std::vector<std::string> _ips);
+    int getAS();
 
     std::string findShortestIBGP();
     void sendToOtherAS(std::shared_ptr<Packet> packet);
