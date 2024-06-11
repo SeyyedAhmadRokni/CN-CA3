@@ -9,16 +9,14 @@ const std::string REQUEST_IP_PACKET = "REQUEST_IP";
 const std::string REGULAR_PACKET = "REGULAR";
 const std::string RIP_PACKET = "RIP";
 const std::string OSPF_PACKET = "OSPF";
-const std::string EBPG_PACKET = "EBPG";
-const std::string IBGP_PACKET = "IBGP";
+const std::string BPG_PACKET = "BPG";
 
 
 
 typedef enum PacketType{
     RIP,
     OSPF,
-    IBGP,
-    EBGP,
+    BGP,
     REGULAR,
     REQUEST_IP,
     OTHERS

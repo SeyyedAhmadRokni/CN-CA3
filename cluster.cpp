@@ -62,7 +62,7 @@ void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     }
 
 
-    Host* h1 = new Host (0.1, 0.1, clusterNumber);
+    Host* h1 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip2);
@@ -71,7 +71,7 @@ void Cluster::createStarTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     h1->moveToThread(thread1);
     threads.push_back(thread1);
 
-    Host* h2 = new Host (0.1, 0.1, clusterNumber);
+    Host* h2 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     h2->setPartners(host_ip2);
@@ -124,7 +124,7 @@ void Cluster::createMeshTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     for (int i =0; i < routers.size(); i++){
         routers[i]->setibgpIps({"192.168.1.16","192.168.1.20","192.168.1.24"});
     }
-    Host* h1 = new Host (0.1, 0.1, clusterNumber);
+    Host* h1 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h1, &Host::handlePackets);
     h1->setPartners(host_ip1);
@@ -133,7 +133,7 @@ void Cluster::createMeshTopology(clockGenerator* clk, CommandReader* cmdr,Packet
     h1->moveToThread(thread1);
     threads.push_back(thread1);
 
-    Host* h2 = new Host (0.1, 0.1, clusterNumber);
+    Host* h2 = new Host (0.1, 0.1, clusterNumber, "0.0.0.0");
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::parteoSendPacket);
     QObject::connect(clk, &clockGenerator::clockSignal, h2, &Host::handlePackets);
     QObject::connect(h2,&Host::sendPacket,packetSaver, &PacketSaver::savePackets);
@@ -164,15 +164,11 @@ void Cluster::addStarToMesh(Cluster* starCluster){
 }
 
 void Cluster::startRouting(){
-    // QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
-    for (auto rt : routers) {
-        rt->setRoutingProtocol(OSPF);
-    }
-    for (int i = 0; i < routers.size(); ++i) {
-        QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
-    }
-    // QThread::sleep(1);
-    // for (int i =0; i < 8; i++){
-    //     routers[i]->printRoutingTable();
+    QtConcurrent::run(&Router::StartRIPProtocol, routers[0]);
+    // for (auto rt : routers) {
+    //     rt->setRoutingProtocol(OSPF);
+    // }
+    // for (int i = 0; i < routers.size(); ++i) {
+    //     QtConcurrent::run(&Router::StartOSPFProtocol, routers[i]);
     // }
 }

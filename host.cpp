@@ -7,7 +7,7 @@
 #include <time.h>
 #include <sstream>
 
-Host::Host(double pareto_alpha, double pareto_xm, int _as, QObject *parent)
+Host::Host(double pareto_alpha, double pareto_xm, int _as, std::string _mask, QObject *parent)
     : QObject{parent}{
 
     alpha = pareto_alpha;
@@ -30,7 +30,7 @@ void Host::createAndSendPacket(){
     std::cout << "regular packet sent." << std::endl;
     int random = rand()%partners.size();
     std::string choosed_partner = partners[random];
-    std::shared_ptr<Packet> packet = std::make_shared<Packet>(choosed_partner, ip, REGULAR_PACKET);
+    std::shared_ptr<Packet> packet = std::make_shared<Packet>(choosed_partner, ip, REGULAR_PACKET, "0.0.0.0");
     packet.get()->setBody("Besme Allah Alrahman Alrahim");
     packet.get()->addASNumber(AS);
     // std::cout << "Packet sent"<<std::endl;
@@ -45,9 +45,11 @@ double Host::paretoDistribution() {
 
 
 void Host::parteoSendPacket(){
-    if (ip.compare(INVALID_IP) == 0){
+    sendIpPacketPeriod+=1;
+    sendIpPacketPeriod %= 1000;
+    if (sendIpPacketPeriod == 0 && ip.compare(INVALID_IP) == 0){
         std::cout << "IP packet sent." << std::endl;
-        std::shared_ptr<Packet> packet = std::make_shared<Packet>(routerIp, ip, REQUEST_IP_PACKET);
+        std::shared_ptr<Packet> packet = std::make_shared<Packet>(routerIp, ip, REQUEST_IP_PACKET, "0.0.0.0");
         packet->addASNumber(AS);
         port->addToOutBuffer(packet);
         port->sendPacket();

@@ -40,7 +40,7 @@ void Router::processRequestIpPacket(std::shared_ptr<Packet> packet, int inPort){
     if (neighbors[inPort].compare("") != 0){
         return;
     }
-    std::shared_ptr<Packet> response = std::make_shared<Packet>(packet->getSource(), ip, REQUEST_IP_PACKET);
+    std::shared_ptr<Packet> response = std::make_shared<Packet>(packet->getSource(), ip, REQUEST_IP_PACKET, "0.0.0.0");
     for (std::string key : hostIps.keys()) {
         if (!hostIps[key]){
             hostIps[key] = true;

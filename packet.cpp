@@ -107,11 +107,8 @@ PacketType Packet::getPacketType(Packet* packet){
     else if (packet->getType().compare(OSPF_PACKET) == 0){
         return OSPF;
     }
-    else if (packet->getType().compare(EBPG_PACKET) == 0){
-        return EBGP;
-    }
-    else if(packet->getType().compare(IBGP_PACKET) == 0){
-        return IBGP;
+    else if (packet->getType().compare(BPG_PACKET) == 0){
+        return BGP;
     }
     else if(packet->getType().compare(REGULAR_PACKET) == 0){
         return REGULAR;
@@ -122,5 +119,4 @@ PacketType Packet::getPacketType(Packet* packet){
     else{
         return OTHERS;
     }
-
 }

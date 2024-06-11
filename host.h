@@ -11,7 +11,7 @@ class Host : public QObject
 {
     Q_OBJECT
 public:
-    explicit Host(double parteo_alpha, double parteo_mx, int _as, QObject *parent = nullptr);
+    explicit Host(double parteo_alpha, double parteo_mx, int _as, std::string _mask, QObject *parent = nullptr);
     void setPartners(const std::vector<std::string>& _partners);
     void createAndSendPacket();
     double paretoDistribution();
@@ -29,6 +29,7 @@ private:
     void setIp(std::shared_ptr<Packet> packet);
     int AS;
     std::string routerIp;
+    int sendIpPacketPeriod = -1;
 signals:
     void sendPacket(std::shared_ptr<Packet> _packet);
 
